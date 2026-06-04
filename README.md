@@ -7,112 +7,130 @@
 Proyecto académico – Universidad Tecnológica Nacional (UTN)  
 Integrador de Organización Empresarial – 2026  
 
----
+## 📌 Descripción
 
-## 📋 Descripción
-Este proyecto implementa un **bot de gestión de vacaciones** en Python que simula un proceso **BPMN 2.0** entre tres actores: **empleado**, **bot** y **supervisor**.  
-El sistema utiliza un archivo Excel (`BBDD_empleados.xlsx`) como base de datos para validar solicitudes y registrar el historial de vacaciones.
+Este proyecto consiste en el desarrollo de un chatbot por consola en Python para la gestión de solicitudes de vacaciones dentro de una organización.
 
----
+El sistema permite a un empleado identificarse mediante su legajo, consultar sus días disponibles, solicitar un período de vacaciones y registrar la solicitud en un archivo Excel. Además, simula la intervención de un supervisor que puede aprobar o rechazar la solicitud.
 
-## ⚙️ Flujo del proceso
-1. **Empleado**
-   - Ingresa su legajo.
-   - Solicita fechas de inicio y fin de vacaciones.
-
-2. **Bot**
-   - Verifica el legajo en la hoja `Empleados_vacaciones`.
-   - Calcula los días solicitados.
-   - Valida las fechas (formato, año y que no sean anteriores a hoy).
-   - Controla el saldo de días disponibles.
-   - Si el supervisor está de vacaciones, aprueba o rechaza automáticamente.
-
-3. **Supervisor**
-   - Recibe solicitudes pendientes.
-   - Decide aprobar o rechazar.
-   - Si rechaza, debe ingresar el motivo.
-
-4. **Registro histórico**
-   - Todas las solicitudes se guardan en la hoja `Historico_vacaciones` con su estado, responsable y comentario.
+Si la solicitud es aprobada, el sistema actualiza automáticamente los días usados y los días disponibles del empleado. Si no hay saldo suficiente, la solicitud es rechazada automáticamente por el sistema.
 
 ---
 
-## 📂 Estructura del proyecto
+## 🎯 Objetivo
 
-├── import os.txt        # Script principal del bot
-├── BBDD_empleados.xlsx  # Base de datos de empleados y vacaciones
-└── README.md            # Documentación del proyecto
+Automatizar el proceso de solicitud de vacaciones mediante una aplicación sencilla, utilizando una base de datos simulada en Excel y aplicando reglas de negocio relacionadas con:
 
+- Validación de datos
+- Verificación de saldo disponible
+- Registro histórico de solicitudes
+- Aprobación o rechazo por parte del supervisor
 
 ---
 
-## 🧠 Requisitos
-- Python 3.10 o superior  
-- Librería necesaria:
+## ⚙️ Funcionalidades principales
+
+- Lectura de empleados desde un archivo Excel
+- Validación del legajo ingresado
+- Consulta de días disponibles
+- Solicitud de vacaciones con fecha de inicio y fin
+- Validación de fechas ingresadas
+- Cálculo automático de días solicitados
+- Rechazo automático por saldo insuficiente
+- Registro de solicitudes en el historial
+- Aprobación o rechazo manual por parte del supervisor
+- Actualización del saldo del empleado al aprobarse la solicitud
+- Manejo de errores al abrir o guardar el archivo Excel
+
+---
+
+## 🧠 Lógica general del sistema
+
+El flujo implementado en el chatbot es el siguiente:
+
+1. El usuario ingresa su legajo.
+2. El sistema verifica si el empleado existe.
+3. Se informa el saldo de días disponibles.
+4. El usuario ingresa fecha de inicio y fecha de fin.
+5. El sistema valida el formato y coherencia de las fechas.
+6. Se calcula automáticamente la cantidad de días solicitados.
+7. Si no hay saldo suficiente, la solicitud se rechaza automáticamente.
+8. Si hay saldo, la solicitud se registra como pendiente.
+9. El supervisor aprueba o rechaza la solicitud.
+10. Si se aprueba, el sistema descuenta los días correspondientes.
+11. El resultado final se guarda en el historial y se comunica al usuario.
+
+---
+
+## 🗂️ Estructura del archivo Excel
+
+El sistema utiliza un archivo llamado:
+
+`BBDD_empleados.xlsx`
+
+Este archivo debe contener dos hojas:
+
+### 1. `Empleados_vacaciones`
+
+Contiene la información de los empleados y su saldo de vacaciones.
+
+Campos utilizados en el código:
+
+- Columna 1: `ID_Empleado` / Legajo
+- Columna 2: `Nombre`
+- Columna 3: `Apellido`
+- Columna 6: `Dias_Usados`
+- Columna 7: `Dias_Disponibles`
+
+### 2. `Historico_vacaciones`
+
+Contiene el registro de todas las solicitudes realizadas.
+
+Campos utilizados:
+
+- `ID_Solicitud`
+- `ID_Empleado`
+- `Fecha_Solicitud`
+- `Fecha_Inicio`
+- `Fecha_Fin`
+- `Dias_Solicitados`
+- `Estado`
+- `Aprobado_Por`
+- `Comentarios`
+
+---
+
+## 🔗 Reglas de negocio implementadas
+
+- El legajo debe existir en la base de datos.
+- El legajo debe ser numérico entero.
+- La fecha de inicio no puede ser anterior al día actual.
+- La fecha de fin debe ser igual o posterior a la fecha de inicio.
+- Los días solicitados se calculan automáticamente a partir del rango de fechas.
+- Si los días solicitados superan los días disponibles, la solicitud se rechaza automáticamente.
+- Si hay disponibilidad, la solicitud pasa al supervisor.
+- El supervisor puede aprobar o rechazar la solicitud.
+- Si la solicitud es aprobada, se actualizan los días usados y los días disponibles del empleado.
+- Toda solicitud queda registrada en el historial.
+
+---
+
+## 💻 Tecnologías utilizadas
+
+- **Python**
+- **openpyxl**
+- **datetime**
+- **Archivo Excel (.xlsx)** como base de datos simulada
+
+---
+
+## ▶️ Ejecución del proyecto
+
+### Requisitos previos
+
+- Tener Python instalado
+- Instalar la biblioteca `openpyxl`
+
 ```bash
 pip install openpyxl
-```
-
-🚀 Ejecución
-Ejecutar el script desde la terminal:
-```bash
-python import\ os.txt
-```
-## 🧩 Durante la ejecución
-
-- El bot solicitará legajo y fechas.  
-- Validará la información.  
-- Guardará los resultados en el archivo Excel.
-
-## 📊 Estructura del archivo Excel
-
-Hoja Empleados_vacaciones
-| Columna | Descripción |
-| --- | --- |
-| Legajo | Identificador del empleado |
-| Nombre | Nombre del empleado |
-| Apellido | Apellido del empleado |
-| Días totales | Días de vacaciones asignados |
-| Días usados | Días ya tomados |
-| Días disponibles | Días restantes |
-
-Hoja Historico_vacaciones
-
-| Columna | Descripción |
-| --- | --- |
-| ID | Identificador de solicitud |
-| Legajo | Empleado solicitante |
-| Fecha solicitud | Fecha en que se registró |
-| Fecha inicio | Inicio de vacaciones |
-| Fecha fin | Fin de vacaciones |
-| Días solicitados | Cantidad de días |
-| Estado | Pendiente, Aprobada, Rechazada |
-| Responsable | Supervisor o Sistema |
-| Comentario | Motivo o detalle |
-
-## 🧰 Funcionalidades destacadas
-
-- Validación de fechas y formato.  
-- Control de saldo de vacaciones.  
-- Aprobación automática si el supervisor está de vacaciones.  
-- Registro histórico de todas las solicitudes.  
-- Mensajes interactivos simulando diálogo entre empleado, bot y supervisor.
-
-## 🍀 Ejemplo de interacción
-
-```bash
-Ingrese su legajo: 3  
-Bot: Bienvenido/a Juan Pérez.  
-Bot: Usted dispone de 12 días.  
-
-=== SOLICITUD DE VACACIONES ===  
-Ingrese fecha de inicio (DD/MM/AAAA): 15/09/2026  
-Ingrese fecha de fin (DD/MM/AAAA): 20/09/2026  
-
-Bot: Días calculados automáticamente: 6  
-Bot: Validando información...  
-Bot: Atención. El supervisor se encuentra de vacaciones.  
-Bot: Solicitud aprobada automáticamente.  
-Bot: Nuevo saldo disponible: 6 días.
-```
 
