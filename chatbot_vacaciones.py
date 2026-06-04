@@ -1,6 +1,6 @@
 import os
 from openpyxl import load_workbook
-from datetime import datetime, date
+from datetime import datetime
 
 ARCHIVO_EXCEL = os.path.join(
     os.path.dirname(__file__),
@@ -106,33 +106,6 @@ def solicitar_motivo_rechazo():
         print("Error: debe ingresar un motivo de rechazo.")
 
 
-def solicitar_confirmacion_usuario():
-    while True:
-        respuesta = input(
-            "\nEmpleado, ¿desea continuar con la solicitud? (S/N): "
-        ).strip().upper()
-
-        if respuesta in ["S", "N"]:
-            return respuesta
-
-        print("Error: debe ingresar S o N.")
-
-
-def supervisor_esta_de_vacaciones(fecha_inicio, fecha_fin):
-    anio = fecha_inicio.year
-
-    inicio_vacaciones_supervisor = date(anio, 9, 15)
-    fin_vacaciones_supervisor = date(anio, 10, 20)
-
-    inicio_solicitud = fecha_inicio.date()
-    fin_solicitud = fecha_fin.date()
-
-    return (
-        inicio_solicitud <= fin_vacaciones_supervisor
-        and fin_solicitud >= inicio_vacaciones_supervisor
-    )
-
-
 def registrar_solicitud(
     hoja_historico,
     legajo,
@@ -158,66 +131,6 @@ def registrar_solicitud(
     ])
 
 
-def aprobar_por_sistema(
-    archivo,
-    hoja_empleados,
-    hoja_historico,
-    fila_empleado,
-    legajo,
-    fecha_inicio,
-    fecha_fin,
-    dias_solicitados,
-    dias_disponibles
-):
-    dias_usados = hoja_empleados.cell(fila_empleado, 6).value
-    nuevo_disponible = dias_disponibles - dias_solicitados
-
-    hoja_empleados.cell(fila_empleado, 6).value = dias_usados + dias_solicitados
-    hoja_empleados.cell(fila_empleado, 7).value = nuevo_disponible
-
-    registrar_solicitud(
-        hoja_historico,
-        legajo,
-        fecha_inicio,
-        fecha_fin,
-        dias_solicitados,
-        "Aprobada",
-        "Sistema",
-        "Vacaciones aprobadas por sistema, porque el supervisor se encuentra de vacaciones"
-    )
-
-    if guardar_archivo(archivo):
-        print("\nBot: Solicitud aprobada automáticamente.")
-        print("Bot: Responsable: Sistema.")
-        print("Bot: Motivo: vacaciones aprobadas por sistema, porque el supervisor se encuentra de vacaciones.")
-        print(f"Bot: Nuevo saldo disponible: {nuevo_disponible} días.")
-
-
-def rechazar_por_sistema_supervisor_vacaciones(
-    archivo,
-    hoja_historico,
-    legajo,
-    fecha_inicio,
-    fecha_fin,
-    dias_solicitados
-):
-    registrar_solicitud(
-        hoja_historico,
-        legajo,
-        fecha_inicio,
-        fecha_fin,
-        dias_solicitados,
-        "Rechazada",
-        "Sistema",
-        "Solicitud rechazada por falta de personal, porque el supervisor se encuentra de vacaciones"
-    )
-
-    if guardar_archivo(archivo):
-        print("\nBot: Solicitud rechazada automáticamente.")
-        print("Bot: Responsable: Sistema.")
-        print("Bot: Motivo: falta de personal, porque el supervisor se encuentra de vacaciones.")
-
-
 def chatbot_vacaciones():
     try:
         print("=" * 45)
@@ -239,7 +152,7 @@ def chatbot_vacaciones():
             return
 
         if not legajo.isdigit():
-            print("\nBot: El legajo debe ser numérico.")
+            print("\nBot: El legajo debe ser numérico entero.")
             return
 
         fila_empleado = buscar_empleado(hoja_empleados, legajo)
@@ -282,41 +195,6 @@ def chatbot_vacaciones():
             print("\nBot: Solicitud rechazada automáticamente.")
             print("Bot: Responsable: Sistema.")
             print("Bot: Motivo: saldo insuficiente.")
-            return
-
-        if supervisor_esta_de_vacaciones(fecha_inicio, fecha_fin):
-            print("\nBot: Atención.")
-            print("Bot: El supervisor se encuentra de vacaciones entre el 15/09 y el 20/10.")
-            print("Bot: En este período, el sistema evaluará automáticamente la solicitud.")
-
-            continuar = solicitar_confirmacion_usuario()
-
-            if continuar == "N":
-                print("\nBot: Solicitud cancelada por el usuario.")
-                return
-
-            if dias_solicitados > 5:
-                rechazar_por_sistema_supervisor_vacaciones(
-                    archivo,
-                    hoja_historico,
-                    legajo,
-                    fecha_inicio,
-                    fecha_fin,
-                    dias_solicitados
-                )
-                return
-
-            aprobar_por_sistema(
-                archivo,
-                hoja_empleados,
-                hoja_historico,
-                fila_empleado,
-                legajo,
-                fecha_inicio,
-                fecha_fin,
-                dias_solicitados,
-                dias_disponibles
-            )
             return
 
         registrar_solicitud(
