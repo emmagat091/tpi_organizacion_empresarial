@@ -295,7 +295,7 @@ def chatbot_vacaciones():
                 print("\nBot: Solicitud cancelada por el usuario.")
                 return
 
-            if dias_solicitados > 10:
+            if dias_solicitados > 5:
                 rechazar_por_sistema_supervisor_vacaciones(
                     archivo,
                     hoja_historico,
